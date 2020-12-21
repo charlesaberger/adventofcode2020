@@ -2,6 +2,7 @@ package thebergers.adventofcode2020.day01;
 
 import java.io.IOException;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,13 +19,29 @@ public class ExpensesCalculator {
 
 	List<Integer> values;
 
-	public Result calculate() {
+	public Result calculatePart1() {
 		for (Integer val : values) {
 			Deque<Integer> workingValues = new ArrayDeque<>(values);
 			workingValues.remove(val);
 			for (Integer workingValue : workingValues) {
 				if (val + workingValue == 2020) {
-					return new Result(val, workingValue);
+					return new Result(Arrays.asList(val, workingValue));
+				}
+			}
+		}
+		throw new IllegalStateException("No matching values found!");
+	}
+
+	public Result calculatePart2() {
+		for (Integer val1 : values) {
+			Deque<Integer> workingValues1 = new ArrayDeque<>(values);
+			workingValues1.remove(val1);
+			for (Integer val2 : workingValues1) {
+				Deque<Integer> workingValues2 = new ArrayDeque<>(workingValues1);
+				workingValues2.remove(val2);
+				for (Integer val3 : workingValues2)
+				if (val1 + val2 + val3 == 2020) {
+					return new Result(Arrays.asList(val1, val2, val3));
 				}
 			}
 		}
@@ -33,12 +50,10 @@ public class ExpensesCalculator {
 
 	@Value
 	public static class Result {
-		Integer value1;
-
-		Integer value2;
+		List<Integer> values;
 
 		public Integer getProduct() {
-			return value1 * value2;
+			return values.stream().reduce(1, Math::multiplyExact);
 		}
 	}
 
@@ -47,7 +62,9 @@ public class ExpensesCalculator {
 		List<String> dataAsStr = Utils.getDataFromFile(fileName);
 		List<Integer> dataAsInteger = dataAsStr.stream().map(Integer::parseInt).collect(Collectors.toList());
 		ExpensesCalculator expensesCalculator = new ExpensesCalculator(dataAsInteger);
-		ExpensesCalculator.Result result = expensesCalculator.calculate();
-		LOG.info("value1={}, value2={}, product={}", result.getValue1(), result.getValue2(), result.getProduct());
+		ExpensesCalculator.Result resultPart1 = expensesCalculator.calculatePart1();
+		LOG.info("Part1: value1={}, value2={}, product={}", resultPart1.getValues().get(0), resultPart1.getValues().get(1), resultPart1.getProduct());
+		ExpensesCalculator.Result resultPart2 = expensesCalculator.calculatePart2();
+		LOG.info("Part1: value1={}, value2={}, value3={}, product={}", resultPart2.getValues().get(0), resultPart2.getValues().get(1), resultPart2.getValues().get(2), resultPart2.getProduct());
 	}
 }
