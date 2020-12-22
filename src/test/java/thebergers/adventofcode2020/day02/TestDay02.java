@@ -45,18 +45,16 @@ public class TestDay02 {
 		assertEquals(2L, PasswordPhilosophy.validateList(part1Data));
 	}
 
-	/*Stream<Arguments> part1ValidateData() {
-		return Stream.of(
-			part1Data().stream()
-			.map(str -> arguments(str, ))
-		)
-	}*/
-
-	/*private List<String> part1Data() {
-		return List.of(
-			"1-3 a: abcde",
-			"1-3 b: cdefg",
-			"2-9 c: ccccccccc"
-		);
-	}*/
+	@ParameterizedTest
+	@CsvSource({
+		"'1-3 a: abcde',true",
+		"'1-3 b: cdefg', false",
+		"'2-9 c: ccccccccc', false",
+		"'10-14 c: sccctgfcchghccccc', true"
+	})
+	void part2Validate(String parameters, String expectedResultStr) {
+		boolean expectedResult = Boolean.parseBoolean(expectedResultStr);
+		passwordPhilosophy = new PasswordPhilosophy(parameters);
+		assertEquals(expectedResult, passwordPhilosophy.validate2());
+	}
 }

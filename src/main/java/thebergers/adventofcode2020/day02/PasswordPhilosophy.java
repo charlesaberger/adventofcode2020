@@ -44,10 +44,26 @@ public class PasswordPhilosophy {
 		return valid;
 	}
 
+	public boolean validate2() {
+		String character1 = String.valueOf(passwordPolicy.password.charAt(passwordPolicy.minNumber - 1));
+		String character2 = String.valueOf(passwordPolicy.password.charAt(passwordPolicy.maxNumber - 1));
+		boolean result = character1.equals(passwordPolicy.character) ^ character2.equals(passwordPolicy.character);
+		LOG.info("password={},position1={},character1={},position2={},character2={},result={}", passwordPolicy.password,
+			passwordPolicy.minNumber, character1, passwordPolicy.maxNumber, character2, result);
+		return result;
+	}
+
 	static long validateList(List<String> passwords) {
 		return passwords.stream()
 			.map(PasswordPhilosophy::new)
 			.filter(PasswordPhilosophy::validate)
+			.count();
+	}
+
+	static long validateList2(List<String> passwords) {
+		return passwords.stream()
+			.map(PasswordPhilosophy::new)
+			.filter(PasswordPhilosophy::validate2)
 			.count();
 	}
 
@@ -86,6 +102,8 @@ public class PasswordPhilosophy {
 		String fileName = "./src/main/resources/input/day02/input.txt";
 		List<String> passwords = Utils.getDataFromFile(fileName);
 		long validCnt = PasswordPhilosophy.validateList(passwords);
-		LOG.info("{} passwords are valid", validCnt);
+		LOG.info("Part 1: {} passwords are valid", validCnt);
+		long validCnt2 = PasswordPhilosophy.validateList2(passwords);
+		LOG.info("Part 2: {} passwords are valid", validCnt2);
 	}
 }
