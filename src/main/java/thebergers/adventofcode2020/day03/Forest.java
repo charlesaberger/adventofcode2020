@@ -1,13 +1,14 @@
 package thebergers.adventofcode2020.day03;
 
-import java.util.Comparator;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import thebergers.adventofcode2020.utils.Utils;
 
 @Slf4j
 @Value
@@ -15,35 +16,29 @@ public class Forest {
 
 	List<String> mapData;
 
-	Table<Integer, Integer, Point> points = HashBasedTable.create();
+	int mapWidth;
+
+	Map<Point, Location> points = new HashMap<>();
 
 	public Forest(List<String> mapData) {
 		this.mapData = mapData;
-		initializeMap(0, 0);
+		initializeMap();
+		this.mapWidth = mapData.get(0).length();
 	}
 
-	private void initializeMap(int xOffset, int yOffset) {
+	private void initializeMap() {
 		IntStream.range(0, mapData.size())
 			.forEach(y -> {
 				String line = mapData.get(y);
 				for (int x = 0; x < line.length(); x++) {
-					String location = String.valueOf(line.charAt(x));
-					int xVal = x + xOffset, yVal = y + yOffset;
-					points.put(yVal, xVal, Point.getInstance(xVal, yVal, location));
+					String locationStr = String.valueOf(line.charAt(x));
+					Location location = Location.fromValue(locationStr);
+					if (location.equals(Location.TREE)) {
+						Point point = Point.getInstance(x, y);
+						points.put(point, location);
+					}
 				}
 			});
-		LOG.info("{}", this);
-	}
-
-	public String toString() {
-		StringBuilder sb = new StringBuilder(System.lineSeparator());
-		for (int x = 0; x < points.rowKeySet().size(); x++) {
-			for (int y = 0; y < points.columnKeySet().size(); y++) {
-				sb.append(points.get(x, y).getLocation().value);
-			}
-			sb.append(System.lineSeparator());
-		}
-		return sb.toString();
 	}
 
 	public long navigatePart1(int xStep, int yStep) {
@@ -52,19 +47,21 @@ public class Forest {
 		long treeCnt = 0;
 		int maxY = mapData.size() - 1;
 		while (y <= maxY) {
-			Location location = points.get(y, x).getLocation();
-			LOG.info("x={}, y={}: {}", x, y, location.value);
-			if (location.equals(Location.TREE)) {
+			boolean isTree = isTree(x, y);
+			LOG.info("x={}, y={}: isTree: {}", x, y, isTree);
+			if (isTree) {
 				treeCnt++;
-			}
-			int maxX = points.columnKeySet().stream().max(Comparator.naturalOrder()).orElse(0);
-			if (x + xStep > maxX) {
-				initializeMap(maxX + 1, 0);
 			}
 			x += xStep;
 			y += yStep;
 		}
 		return treeCnt;
+	}
+
+	private boolean isTree(int x, int y) {
+		int xPos = x % mapWidth;
+		Point currentPosition = Point.getInstance(xPos, y);
+		return points.containsKey(currentPosition);
 	}
 
 	@Value
@@ -73,10 +70,8 @@ public class Forest {
 
 		Integer y;
 
-		Location location;
-
-		static Point getInstance(Integer x, Integer y, String locationStr) {
-			return new Point(x, y, Location.fromValue(locationStr));
+		static Point getInstance(Integer x, Integer y) {
+			return new Point(x, y);
 		}
 	}
 
@@ -96,5 +91,13 @@ public class Forest {
 			}
 			return EMPTY;
 		}
+	}
+
+	public static void main(String[] args) throws IOException {
+		String fileName = "./src/main/resources/input/day03/input.txt";
+		List<String> mapData = Utils.getDataFromFile(fileName);
+		Forest forest = new Forest(mapData);
+		long treeCnt = forest.navigatePart1(3, 1);
+		LOG.info("Found {} trees", treeCnt);
 	}
 }
