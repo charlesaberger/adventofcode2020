@@ -58,6 +58,12 @@ public class Forest {
 		return treeCnt;
 	}
 
+	public long navigatePart2(List<Step> steps) {
+		return steps.stream()
+			.map(step -> navigatePart1(step.getXStep(), step.getYStep()))
+			.reduce(1L, (product, value) -> product * value);
+	}
+
 	private boolean isTree(int x, int y) {
 		int xPos = x % mapWidth;
 		Point currentPosition = Point.getInstance(xPos, y);
@@ -98,6 +104,15 @@ public class Forest {
 		List<String> mapData = Utils.getDataFromFile(fileName);
 		Forest forest = new Forest(mapData);
 		long treeCnt = forest.navigatePart1(3, 1);
-		LOG.info("Found {} trees", treeCnt);
+		LOG.info("Pt 1: Found {} trees", treeCnt);
+		List<Step> steps = List.of(
+			new Step(1, 1),
+			new Step(3, 1),
+			new Step(5, 1),
+			new Step(7, 1),
+			new Step(1, 2)
+		);
+		long totalTrees = forest.navigatePart2(steps);
+		LOG.info("Pt 2: totalTrees = {}", totalTrees);
 	}
 }
