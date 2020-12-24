@@ -1,6 +1,8 @@
 package thebergers.adventofcode2020.day05;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static thebergers.adventofcode2020.day05.BinaryBoarding.NUM_ROWS;
+import static thebergers.adventofcode2020.day05.BinaryBoarding.NUM_SEATS;
 
 import java.util.List;
 
@@ -9,10 +11,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 public class TestDay05 {
-
-	private static final Integer NUM_ROWS = 128;
-
-	private static final Integer NUM_SEATS = 8;
 
 	@ParameterizedTest
 	@CsvSource({
@@ -39,5 +37,4 @@ public class TestDay05 {
 		);
 		assertEquals(820, BinaryBoarding.findHighestSeatId(NUM_ROWS, NUM_SEATS, boardingPasses));
 	}
-
 }
