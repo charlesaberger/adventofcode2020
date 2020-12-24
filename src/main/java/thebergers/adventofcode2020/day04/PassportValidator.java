@@ -12,14 +12,14 @@ import org.apache.commons.lang3.StringUtils;
 @Slf4j
 public class PassportValidator {
 
-	static long validatePassportFile(String fileName) throws IOException {
+	static long validatePassportFile(String fileName, ValidationMode validationMode) throws IOException {
 		List<Passport> validPassports = new LinkedList<>();
 		BufferedReader passportData = new BufferedReader(new FileReader(fileName));
-		Passport.Builder builder = new Passport.Builder();
+		Passport.Builder builder = Passport.Builder.getInstance(validationMode);
 		while (true) {
 			String data = passportData.readLine();
 			if (StringUtils.isEmpty(data)) {
-				LOG.info("{}", builder);
+				//LOG.info("{}", builder);
 				Passport passport = builder.build();
 				if (passport != null) {
 					validPassports.add(passport);
@@ -27,7 +27,7 @@ public class PassportValidator {
 				if (data == null) {
 					break;
 				}
-				builder = new Passport.Builder();
+				builder = Passport.Builder.getInstance(validationMode);
 			} else {
 				parseData(data, builder);
 			}
@@ -44,7 +44,9 @@ public class PassportValidator {
 
 	public static void main(String[] args) throws IOException {
 		String fileName = "./src/main/resources/input/day04/input.txt";
-		long validPassports = PassportValidator.validatePassportFile(fileName);
-		LOG.info("Found {} valid passports", validPassports);
+		long validPassportsPt1 = PassportValidator.validatePassportFile(fileName, ValidationMode.LOOSE);
+		LOG.info("Found {} valid passports", validPassportsPt1);
+		long validPassportsPt2 = PassportValidator.validatePassportFile(fileName, ValidationMode.STRICT);
+		LOG.info("Found {} valid passports", validPassportsPt2);
 	}
 }
