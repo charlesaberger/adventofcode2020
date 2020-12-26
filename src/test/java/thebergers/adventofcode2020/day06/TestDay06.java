@@ -11,7 +11,12 @@ public class TestDay06 {
 	@Test
 	void part1() throws IOException {
 		String fileName = "./src/test/resources/day06/test_input_pt1.txt";
-		assertEquals(11, CustomsDeclaration.countYesAnswers(fileName));
+		assertEquals(11, CustomsDeclaration.countAnyoneYesAnswers(fileName));
+	}
 
+	@Test
+	void part2() throws IOException {
+		String fileName = "./src/test/resources/day06/test_input_pt1.txt";
+		assertEquals(6, CustomsDeclaration.countEveryoneYesAnswers(fileName));
 	}
 }
