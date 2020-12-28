@@ -84,20 +84,13 @@ public class LuggageProcessor {
 	}
 
 	private Long countBags(String colour, Long runningTotal) {
-		LOG.info("countingBags for {}, runningTotal={}", colour, runningTotal);
 		Set<String> enclosed = bags.successors(colour);
-		//runningTotal++;
 		if (enclosed.isEmpty()) {
 			return ++runningTotal;
 		}
-		Long totalBagsInside = 0L;
 		for (String successor : enclosed) {
 			Long qty = bags.edgeValue(colour, successor).orElse(0L);
-			Long bagsInside = countBags(successor, 0L);
-			runningTotal += qty * bagsInside;
-			//runningTotal += totalBagsInside;
-			LOG.info("colour: {}, qty: {}, bagsInside: {}, totalBagsInside: {}, runningTotal: {}",
-				successor, qty, bagsInside, totalBagsInside, runningTotal);
+			runningTotal += qty * countBags(successor, 0L);
 		}
 		return ++runningTotal;
 	}
