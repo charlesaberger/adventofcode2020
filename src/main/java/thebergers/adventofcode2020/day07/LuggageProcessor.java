@@ -16,10 +16,10 @@ import lombok.extern.slf4j.Slf4j;
 @Value
 public class LuggageProcessor {
 
-	ValueGraph<String, Integer> bags;
+	ValueGraph<String, Long> bags;
 
 	public static LuggageProcessor getInstance(String fileName) throws IOException {
-		ImmutableValueGraph.Builder<String, Integer> builder = ValueGraphBuilder.directed().<String, Integer>immutable();
+		ImmutableValueGraph.Builder<String, Long> builder = ValueGraphBuilder.directed().<String, Long>immutable();
 		populateGraph(builder, fileName);
 		return new LuggageProcessor(builder.build());
 	}
@@ -28,9 +28,20 @@ public class LuggageProcessor {
 		String fileName = "./src/main/resources/input/day07/input.txt";
 		LuggageProcessor luggageProcessor = LuggageProcessor.getInstance(fileName);
 		LOG.info("Applicable bags = {}", luggageProcessor.getApplicableBags("shiny gold"));
+		LOG.info("Bags inside = {}", luggageProcessor.countRequiredBags("shiny gold"));
 	}
 
-	private static void populateGraph(ImmutableValueGraph.Builder<String, Integer> builder, String fileName) throws IOException {
+	public long getApplicableBags(String colour) {
+		Set<String> colours = new HashSet<>();
+		processPredecessors(colour, colours);
+		return colours.size();
+	}
+
+	public long countRequiredBags(String colour) {
+		return countBags(colour, 0L) - 1L;
+	}
+
+	private static void populateGraph(ImmutableValueGraph.Builder<String, Long> builder, String fileName) throws IOException {
 		try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
 			while (true) {
 				String rule = reader.readLine();
@@ -42,7 +53,7 @@ public class LuggageProcessor {
 		};
 	}
 
-	private static void parseLine(String rule, ImmutableValueGraph.Builder<String, Integer> builder) {
+	private static void parseLine(String rule, ImmutableValueGraph.Builder<String, Long> builder) {
 		String[] bagSpecs = rule.split(" contain ");
 		String parent = bagSpecs[0].replace(" bags", "");
 		builder.addNode(parent);
@@ -51,27 +62,12 @@ public class LuggageProcessor {
 			childrenStr = childrenStr.replace(" bags", "").replace(" bag", "").replace(".", "");
 			String[] children = childrenStr.split(", ");
 			for (String child : children) {
-				Integer qty = Integer.parseInt(String.valueOf(child.charAt(0)));
+				Long qty = Long.parseLong(String.valueOf(child.charAt(0)));
 				String childColour = child.substring(2);
 				builder.addNode(childColour);
 				builder.putEdgeValue(parent, childColour, qty);
 			}
 		}
-	}
-
-	public long getApplicableBags(String colour) {
-		/*Set<String> allNodes = bags.nodes();
-		Predicate<String> isOuterNode = name -> bags.predecessors(name).isEmpty();
-		Set<String> outerNodes = allNodes.stream()
-			.filter(isOuterNode)
-			.collect(Collectors.toSet());
-		return outerNodes.stream()
-			.map(bags::successors)
-			.filter(nodes -> nodes.contains(colour))
-			.count();*/
-		Set<String> colours = new HashSet<>();
-		processPredecessors(colour, colours);
-		return colours.size();
 	}
 
 	private void processPredecessors(String colour, Set<String> colours) {
@@ -85,5 +81,24 @@ public class LuggageProcessor {
 				colours.add(predecessor);
 			}
 		}
+	}
+
+	private Long countBags(String colour, Long runningTotal) {
+		LOG.info("countingBags for {}, runningTotal={}", colour, runningTotal);
+		Set<String> enclosed = bags.successors(colour);
+		//runningTotal++;
+		if (enclosed.isEmpty()) {
+			return ++runningTotal;
+		}
+		Long totalBagsInside = 0L;
+		for (String successor : enclosed) {
+			Long qty = bags.edgeValue(colour, successor).orElse(0L);
+			Long bagsInside = countBags(successor, 0L);
+			runningTotal += qty * bagsInside;
+			//runningTotal += totalBagsInside;
+			LOG.info("colour: {}, qty: {}, bagsInside: {}, totalBagsInside: {}, runningTotal: {}",
+				successor, qty, bagsInside, totalBagsInside, runningTotal);
+		}
+		return ++runningTotal;
 	}
 }
