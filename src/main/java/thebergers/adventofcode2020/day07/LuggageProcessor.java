@@ -10,7 +10,9 @@ import com.google.common.graph.ImmutableValueGraph;
 import com.google.common.graph.ValueGraph;
 import com.google.common.graph.ValueGraphBuilder;
 import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Value
 public class LuggageProcessor {
 
@@ -20,6 +22,12 @@ public class LuggageProcessor {
 		ImmutableValueGraph.Builder<String, Integer> builder = ValueGraphBuilder.directed().<String, Integer>immutable();
 		populateGraph(builder, fileName);
 		return new LuggageProcessor(builder.build());
+	}
+
+	public static void main(String[] args) throws IOException {
+		String fileName = "./src/main/resources/input/day07/input.txt";
+		LuggageProcessor luggageProcessor = LuggageProcessor.getInstance(fileName);
+		LOG.info("Applicable bags = {}", luggageProcessor.getApplicableBags("shiny gold"));
 	}
 
 	private static void populateGraph(ImmutableValueGraph.Builder<String, Integer> builder, String fileName) throws IOException {
