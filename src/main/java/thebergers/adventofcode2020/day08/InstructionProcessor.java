@@ -4,23 +4,38 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import thebergers.adventofcode2020.utils.Utils;
 
 @Slf4j
 public class InstructionProcessor {
 
-	List<Instruction> instructions = new LinkedList<>();
+	private final List<Instruction> instructions = new LinkedList<>();
 
-	Integer accumulator = 0;
+	private Integer accumulator = 0;
+
+	private int index = 0;
+
+	private boolean terminatedCleanly = false;
+
+	public List<Instruction> getInstructions() {
+		return instructions;
+	}
 
 	public int getAccumulator() {
 		return accumulator;
 	}
 
+	public int getIndex() {
+		return index;
+	}
+
+	public boolean isTerminatedCleanly() {
+		return terminatedCleanly;
+
+	}
+
 	void process() {
-		int index = 0;
 		Instruction instruction;
 		while (true) {
 			instruction = instructions.get(index);
@@ -40,6 +55,10 @@ public class InstructionProcessor {
 					break;
 			}
 			instruction.processed();
+			if (index >= instructions.size()) {
+				terminatedCleanly = true;
+				break;
+			}
 		}
 	}
 
@@ -52,16 +71,30 @@ public class InstructionProcessor {
 		LOG.info("Pt1: Accumulator={}", instructionProcessor.getAccumulator());
 	}
 
-	@Data
 	public static class Instruction {
 
-		private final InstructionType instructionType;
+		private InstructionType instructionType;
 
 		private final Integer value;
 
 		private boolean processed = false;
 
 		public void processed() { this.processed = true; }
+
+		public boolean isProcessed() { return processed; }
+
+		public Instruction(InstructionType instructionType, Integer value) {
+			this.instructionType = instructionType;
+			this.value = value;
+		}
+
+		public InstructionType getInstructionType() {
+			return instructionType;
+		}
+
+		public void setInstructionType(InstructionType instructionType) {
+			this.instructionType = instructionType;
+		}
 
 		public static Instruction of(String instructionStr) {
 			String[] parts = instructionStr.split(" ");
@@ -108,7 +141,7 @@ public class InstructionProcessor {
 			InstructionProcessor instructionProcessor = new InstructionProcessor();
 			instructions.stream()
 				.map(Instruction::of)
-				.forEach(instr -> instructionProcessor.instructions.add(instr));
+				.forEach(instructionProcessor.instructions::add);
 			return instructionProcessor;
 		}
 	}
