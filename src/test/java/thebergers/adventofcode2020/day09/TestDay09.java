@@ -17,4 +17,12 @@ public class TestDay09 {
 		XmasCracker xmasCracker = new XmasCracker(5, data);
 		assertEquals(127L, xmasCracker.analyse());
 	}
+
+	@Test
+	void part2() throws IOException {
+		String fileName = "./src/test/resources/day09/test_input_pt1.txt";
+		List<String> data = Utils.getDataFromFile(fileName);
+		XmasCracker xmasCracker = new XmasCracker(5, data);
+		assertEquals(62L, xmasCracker.findWeakness());
+	}
 }

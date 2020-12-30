@@ -1,6 +1,8 @@
 package thebergers.adventofcode2020.day09;
 
 import java.io.IOException;
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,10 +53,42 @@ public class XmasCracker {
 		return false;
 	}
 
+	public long findWeakness() {
+		Long invalid = analyse();
+		int startIndex = 0;
+		while (startIndex < data.size()) {
+			Long weakness = testWeakness(startIndex, invalid);
+			if (weakness > 0L) {
+				return weakness;
+			}
+			startIndex++;
+		}
+		return -1L;
+	}
+
+	private Long testWeakness(int startIndex, Long candidate) {
+		Long total = 0L;
+		List<Long> values = new LinkedList<>();
+		int index = startIndex;
+		while (total <= candidate) {
+			Long value = data.get(index);
+			total += value;
+			values.add(value);
+			if (total.equals(candidate) && values.size() >= 2) {
+				Long minVal = values.stream().min(Comparator.naturalOrder()).orElse(0L);
+				Long maxVal = values.stream().max(Comparator.naturalOrder()).orElse(0L);
+				return minVal + maxVal;
+			}
+			index++;
+		}
+		return -1L;
+	}
+
 	public static void main(String[] args) throws IOException {
 		String fileName = "./src/main/resources/input/day09/input.txt";
 		List<String> data = Utils.getDataFromFile(fileName);
 		XmasCracker xmasCracker = new XmasCracker(25, data);
-		LOG.info("Value = {}", xmasCracker.analyse());
+		LOG.info("Pt1 result = {}", xmasCracker.analyse());
+		LOG.info("Pt2 result = {}", xmasCracker.findWeakness());
 	}
 }
